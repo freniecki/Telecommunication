@@ -87,13 +87,11 @@ public class Helper {
 
     public static byte bitSetToByte(BitSet bitSet) {
         byte b = 0;
-
-        for (int i = 0; i < 8 * 8; i++) {
+        for (int i = 0; i < 8; i++) {
             if (bitSet.get(i)) {
                 b |= (byte) (1 << (7 - i));
             }
         }
-
         return b;
     }
 
@@ -126,19 +124,11 @@ public class Helper {
         BitSet byteBit = new BitSet(8);
         for (int i = 0; i < byteSize; i++) {
             for (int j = 0; j < 8; j++) {
-                byteBit.set(j, bitSet.get(i * byteSize + j));
+                byteBit.set(j, bitSet.get(i * 8 + j));
             }
             bytes[i] = Helper.bitSetToByte(byteBit);
             byteBit.clear();
         }
         return bytes;
-    }
-
-    public static BitSet convertByteToBinaryVector(byte b) {
-        BitSet bitSet = new BitSet(8);
-        for (int i = 0; i < 8; i++) {
-            bitSet.set(i, (b & (1 << (7 - i))) == 1);
-        }
-        return bitSet;
     }
 }

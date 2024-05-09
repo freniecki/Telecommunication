@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ErrorCorrectionTest {
 
     @Test
@@ -55,18 +53,18 @@ class ErrorCorrectionTest {
         for (byte b : product) {
             System.out.println(Helper.byteToBinaryString(b));
         }
-
-    }
-    void count(int x) {
-        int y = (int) Math.ceil((double) (x * 3) / 2);
-        System.out.println("x: " + x * 8 + " | y: " + y * 8);
-        System.out.println("-------------");
     }
 
     @Test
-    void wtf() {
-        for (int i = 1; i < 20; i++) {
-            count(i);
-        }
+    void decodeWord() {
+        ErrorCorrection ec = new ErrorCorrection();
+
+
+    }
+
+    @Test
+    void decodeByte() {
+        byte[] bytes = {(byte) 79, (byte) 176};
+
     }
 }

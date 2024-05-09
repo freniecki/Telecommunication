@@ -81,7 +81,6 @@ public class ErrorCorrection {
         return Helper.toByteArray(encodedBytes, encodedSize);
     }
 
-
     BitSet decodeWord(BitSet block, int[][] matrix, int blockSize) {
         int columns = 8 + matrix.length;
         int rows = matrix.length;
