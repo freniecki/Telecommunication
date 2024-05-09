@@ -53,6 +53,19 @@ class ErrorCorrectionTest {
         for (byte b : product) {
             System.out.println(Helper.byteToBinaryString(b));
         }
+
+        System.out.println();
+
+        byte[] productDouble = ec.codeBytes(array, Helper.doubleErrorMatrix);
+        System.out.println("----------------");
+        for (byte b : array) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
+        System.out.println("==============");
+        for (byte b : productDouble) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
+
     }
 
     @Test
@@ -65,6 +78,21 @@ class ErrorCorrectionTest {
     @Test
     void decodeByte() {
         byte[] bytes = {(byte) 79, (byte) 176};
+        ErrorCorrection ec = new ErrorCorrection();
 
+        byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
+        byte[] decoded = ec.decodeByte(encoded, Helper.singleErrorMatrix);
+
+        for (byte b : bytes) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
+        System.out.println("----------------");
+        for (byte b : encoded) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
+        System.out.println("==============");
+        for (byte b : decoded) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
     }
 }

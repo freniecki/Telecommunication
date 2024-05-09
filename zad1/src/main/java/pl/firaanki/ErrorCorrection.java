@@ -81,20 +81,14 @@ public class ErrorCorrection {
         return Helper.toByteArray(encodedBytes, encodedSize);
     }
 
-    BitSet decodeWord(BitSet block, int[][] matrix, int blockSize) {
+    BitSet decodeWord(BitSet block, int[][] matrix) {
         int columns = 8 + matrix.length;
         int rows = matrix.length;
 
-        // todo: to nie jest error vector
+        // error vector is size of matrix row
         BitSet errorVector = multiplyMatrixByVector(block, matrix);
-        boolean correct = true;
-        for (int i = 0; i < blockSize; i++) {
-            // if error vector non-zero
-            if (errorVector.get(i)) {
-                correct = false;
-                break;
-            }
-        }
+        boolean correct = errorVector.isEmpty();
+
         // single error - bit index
         int errorBitNumber = -1;
         // double error - bits indexes
@@ -119,13 +113,13 @@ public class ErrorCorrection {
 
             // if not found and rows min. 7 (min. for double error correction)
             if (errorBitNumber == -1 && rows >= 7) {
-                for (int j1 = 0; j1 < columns; j1++) {
+                for (int col1 = 0; col1 < columns; col1++) {
                     boolean identical = true;
-                    for (int j2 = j1 + 1; j2 < columns; j2++) {
+                    for (int col2 = col1 + 1; col2 < columns; col2++) {
                         identical = true;
 
                         for (int i = 0; i < rows; i++) {
-                            boolean check = getBoolean(matrix[i][j1]) ^ getBoolean(matrix[i][j2]);
+                            boolean check = getBoolean(matrix[i][col1]) ^ getBoolean(matrix[i][col2]);
                             if (check != errorVector.get(i)) {
                                 identical = false;
                                 break;
@@ -133,8 +127,8 @@ public class ErrorCorrection {
                         }
 
                         if (identical) {
-                            errorBitNumber1 = j1;
-                            errorBitNumber2 = j2;
+                            errorBitNumber1 = col1;
+                            errorBitNumber2 = col2;
                             break;
                         }
                     }
@@ -177,13 +171,13 @@ public class ErrorCorrection {
             for (int j = 0; j < blockSize; j++) {
                 block.set(j, encodedBytes.get(i * primaryByteCount + j));
             }
-            BitSet decodedWord = decodeWord(block, matrix, blockSize);
+            BitSet decodedWord = decodeWord(block, matrix);
             for (int j = 0; j < 8; j++) {
                 decodedBytes.set(i * 8 + j, decodedWord.get(j));
             }
         }
 
-        return decodedBytes.toByteArray();
+        return Helper.toByteArray(decodedBytes, decodedSize);
     }
 
 }
