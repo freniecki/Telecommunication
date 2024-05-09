@@ -85,6 +85,18 @@ public class Helper {
         return bitSet;
     }
 
+    public static byte bitSetToByte(BitSet bitSet) {
+        byte b = 0;
+
+        for (int i = 0; i < 8 * 8; i++) {
+            if (bitSet.get(i)) {
+                b |= (byte) (1 << (7 - i));
+            }
+        }
+
+        return b;
+    }
+
     public static BitSet byteArrayToBitSet(byte[] bytes) {
         BitSet bitSet = new BitSet(bytes.length * 8);
         for (int i = 0; i < bytes.length; i++) {
@@ -109,13 +121,17 @@ public class Helper {
         return binaryString.toString();
     }
 
-    public static byte[] toByteArray(BitSet bitSet, int bitsCount) {
-        byte[] bytes = new byte[bitsCount];
-        for (int i = 0; i < bitsCount; i++) {
+    public static byte[] toByteArray(BitSet bitSet, int byteSize) {
+        byte[] bytes = new byte[byteSize];
+        BitSet byteBit = new BitSet(8);
+        for (int i = 0; i < byteSize; i++) {
             for (int j = 0; j < 8; j++) {
-                bytes[i] |= (1 << (7 - j));
+                byteBit.set(j, bitSet.get(i * byteSize + j));
             }
+            bytes[i] = Helper.bitSetToByte(byteBit);
+            byteBit.clear();
         }
+        return bytes;
     }
 
     public static BitSet convertByteToBinaryVector(byte b) {

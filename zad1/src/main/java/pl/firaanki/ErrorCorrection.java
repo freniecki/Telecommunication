@@ -78,7 +78,7 @@ public class ErrorCorrection {
             }
         }
         logger.info(Helper.bitsToString(encodedBytes, encodedSize * 8));
-        return encodedBytes.toByteArray();
+        return Helper.toByteArray(encodedBytes, encodedSize);
     }
 
 
