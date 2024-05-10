@@ -3,8 +3,6 @@ package pl.firaanki;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.logging.Handler;
-
 import static pl.firaanki.ErrorCorrectionTest.printBytes;
 
 class FileHandlerTest {
@@ -17,6 +15,7 @@ class FileHandlerTest {
         };
         FileHandler fileHandler = FileHandler.getFile("write.txt");
         fileHandler.write(bytes);
+        printBytes(bytes, "write");
     }
 
     @Test
@@ -47,7 +46,7 @@ class FileHandlerTest {
         //printBytes(encodedRead, "readEncoded");
 
         // decode from encoded file
-        byte[] decoded = ec.decodeByte(encodedRead, Helper.singleErrorMatrix);
+        byte[] decoded = ec.decodeBytes(encodedRead, Helper.singleErrorMatrix);
         printBytes(decoded, "decoded");
 
         // save to decoded file

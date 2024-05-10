@@ -9,7 +9,7 @@ public class ErrorCorrection {
      *
      * @param matrix  Matrix
      * @param message n-bit word
-     * @return n-bit block with set parity bits
+     * @return parity bits (4 or 8)
      */
     BitSet multiplyMatrixByVector(BitSet message, int[][] matrix) {
         BitSet block = new BitSet(matrix.length);
@@ -70,7 +70,7 @@ public class ErrorCorrection {
             BitSet encodedWord = codeWord(bytes[i], matrix);
 
             for (int j = 0; j < blockSize; j++) {
-                encodedBytes.set(i * encodedSize + j, encodedWord.get(j));
+                encodedBytes.set(i * blockSize + j, encodedWord.get(j));
             }
         }
 
@@ -97,17 +97,21 @@ public class ErrorCorrection {
 
             // if not found and rows min. 7 (min. for double error correction)
             if (rows >= 7) {
-                for (int col1 = 0; col1 < columns; col1++) {
-                    for (int col2 = col1 + 1; col2 < columns; col2++) {
+                return checkDoubleError(errorVector, matrix, block, columns, rows);
+            }
+        }
+        return block;
+    }
 
-                        for (int i = 0; i < rows; i++) {
-                            boolean check = getBoolean(matrix[i][col1]) ^ getBoolean(matrix[i][col2]);
-                            if (check != errorVector.get(i)) {
-                                block.flip(col1);
-                                block.flip(col2);
-                                return block;
-                            }
-                        }
+    private BitSet checkDoubleError(BitSet errorVector, int[][] matrix, BitSet block, int columns, int rows) {
+        for (int col1 = 0; col1 < columns; col1++) {
+            for (int col2 = col1 + 1; col2 < columns; col2++) {
+                for (int i = 0; i < rows; i++) {
+                    boolean check = getBoolean(matrix[i][col1]) ^ getBoolean(matrix[i][col2]);
+                    if (check != errorVector.get(i)) {
+                        block.flip(col1);
+                        block.flip(col2);
+                        return block;
                     }
                 }
             }
@@ -115,7 +119,7 @@ public class ErrorCorrection {
         return block;
     }
 
-    byte[] decodeByte(byte[] bytes, int[][] matrix) {
+    byte[] decodeBytes(byte[] bytes, int[][] matrix) {
         // size of return byte[]
         int decodedSize;
         // size of block in bits (12 or 16)
@@ -123,7 +127,7 @@ public class ErrorCorrection {
 
         if (matrix.length == 4) {
             blockSize = 12;
-            decodedSize = (int) Math.ceil((double) bytes.length / 2);
+            decodedSize = (int) Math.floor((double) bytes.length * 2  / 3);
         } else {
             blockSize = 16;
             decodedSize = bytes.length / 2;

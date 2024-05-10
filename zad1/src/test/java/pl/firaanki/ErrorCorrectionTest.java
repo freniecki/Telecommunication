@@ -71,21 +71,23 @@ class ErrorCorrectionTest {
     @Test
     void decodeWord() {
         ErrorCorrection ec = new ErrorCorrection();
-        BitSet encoded = new BitSet(12);
-        encoded.set(1);
-        encoded.set(4);
-        encoded.set(5);
-        encoded.set(6);
-        encoded.set(7);
-        encoded.set(8);
-        encoded.set(9);
-        encoded.set(10);
-        encoded.set(11);
+        byte[] input = {(byte) 51};
+        byte[] encodedBytes = ec.codeBytes(input, Helper.singleErrorMatrix);
+        printBytes(encodedBytes, "encoded");
 
-        System.out.println(encoded);
+        BitSet encodedWord = new BitSet(12);
+        for (int i : new int[]{2, 3, 6, 7, 8, 11}) {
+            encodedWord.set(i);
+        }
 
-        BitSet decoded = ec.decodeWord(encoded,Helper.singleErrorMatrix);
+        BitSet decoded = ec.decodeWord(encodedWord, Helper.singleErrorMatrix);
         System.out.println(decoded);
+        byte[] output = {Helper.bitSetToByte(decoded)};
+
+        printBytes(input, "input");
+        printBytes(output, "output");
+
+        Assertions.assertArrayEquals(input, output);
     }
 
     @Test
@@ -95,13 +97,32 @@ class ErrorCorrectionTest {
         printBytes(bytes, "enter");
 
         byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
-        printBytes(encoded,"encoded");
+        printBytes(encoded, "encoded");
 
-        byte[] decoded = ec.decodeByte(encoded, Helper.singleErrorMatrix);
+        byte[] decoded = ec.decodeBytes(encoded, Helper.singleErrorMatrix);
         printBytes(decoded, "decoded");
 
         Assertions.assertArrayEquals(bytes, decoded);
     }
+
+    @Test
+    void decodeBytes() {
+        ErrorCorrection ec = new ErrorCorrection();
+        byte[] bytes = {
+                (byte) 48, (byte) 57, (byte) 56, (byte) 55, (byte) 54,
+                (byte) 53, (byte) 52, (byte) 51, (byte) 50, (byte) 49,
+        };
+        printBytes(bytes, "enter");
+
+        byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
+        printBytes(encoded,"encoded");
+
+        byte[] decoded = ec.decodeBytes(encoded, Helper.singleErrorMatrix);
+        printBytes(decoded, "decoded");
+
+        Assertions.assertArrayEquals(bytes, decoded);
+    }
+
     static void printBytes(byte[] bytes, String name) {
         System.out.println("---" + name + "---");
         for (byte b : bytes) {

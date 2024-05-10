@@ -21,7 +21,7 @@ public class FileHandler {
         String filePath = new File(fileName).getAbsolutePath();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedInputStream reader = new BufferedInputStream(new FileInputStream(filePath))) {
 
             int data;
             while ((data = reader.read()) != -1) {
@@ -56,8 +56,9 @@ public class FileHandler {
             logger.info("error when creating file");
         }
 
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            outputStream.write(message);
+        try (BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(filePath))) {
+
+            writer.write(message);
             logger.info("written to file");
         } catch (IOException e) {
             logger.info("cannot write to file");
