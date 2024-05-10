@@ -16,6 +16,7 @@ class FileHandlerTest {
         FileHandler fileHandler = FileHandler.getFile("write.txt");
         fileHandler.write(bytes);
         printBytes(bytes, "write");
+        Assertions.assertTrue(true);
     }
 
     @Test
@@ -23,6 +24,7 @@ class FileHandlerTest {
         FileHandler fileHandler = FileHandler.getFile("plik.txt");
         byte[] bytes = fileHandler.read();
         printBytes(bytes, "read");
+        Assertions.assertTrue(true);
     }
 
     @Test

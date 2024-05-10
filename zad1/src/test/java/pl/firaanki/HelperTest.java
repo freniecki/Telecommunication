@@ -5,15 +5,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class HelperTest {
 
     @Test
     void byteToBitSet() {
         byte b = (byte) 128;
-        System.out.println(Helper.byteToBinaryString(b));
-        System.out.println(Helper.byteToBitSet(b));
+        Assertions.assertEquals("{0}", Helper.byteToBitSet(b).toString());
     }
 
     @Test
@@ -25,10 +22,5 @@ class HelperTest {
         System.out.println(Helper.byteToBinaryString(byt));
 
         Assertions.assertEquals(b, byt);
-    }
-
-    @Test
-    void byteArrayToBitSet() {
-
     }
 }

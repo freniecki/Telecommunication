@@ -43,29 +43,17 @@ class ErrorCorrectionTest {
         ErrorCorrection ec = new ErrorCorrection();
         byte[] array = new byte[1];
         array[0] = (byte) 79;
+        printBytes(array, "array");
 
+        byte[] encoded = {(byte) 79, (byte) 176};
         byte[] product = ec.codeBytes(array, Helper.singleErrorMatrix);
-        System.out.println("----------------");
-        for (byte b : array) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
-        System.out.println("==============");
-        for (byte b : product) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
-
-        System.out.println();
+        printBytes(product, "product");
 
         byte[] productDouble = ec.codeBytes(array, Helper.doubleErrorMatrix);
-        System.out.println("----------------");
-        for (byte b : array) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
-        System.out.println("==============");
-        for (byte b : productDouble) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
+        printBytes(productDouble, "productDouble");
 
+        Assertions.assertArrayEquals(encoded, product);
+        Assertions.assertArrayEquals(encoded, productDouble);
     }
 
     @Test
