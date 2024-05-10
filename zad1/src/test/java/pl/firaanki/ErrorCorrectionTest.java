@@ -71,28 +71,43 @@ class ErrorCorrectionTest {
     @Test
     void decodeWord() {
         ErrorCorrection ec = new ErrorCorrection();
+        BitSet encoded = new BitSet(12);
+        encoded.set(1);
+        encoded.set(4);
+        encoded.set(5);
+        encoded.set(6);
+        encoded.set(7);
+        encoded.set(8);
+        encoded.set(9);
+        encoded.set(10);
+        encoded.set(11);
 
+        System.out.println(encoded);
 
+        BitSet decoded = ec.decodeWord(encoded,Helper.singleErrorMatrix);
+        System.out.println(decoded);
     }
 
     @Test
     void decodeByte() {
-        byte[] bytes = {(byte) 79, (byte) 176};
         ErrorCorrection ec = new ErrorCorrection();
+        byte[] bytes = {(byte) 79};
+        printBytes(bytes, "enter");
 
         byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
-        byte[] decoded = ec.decodeByte(encoded, Helper.singleErrorMatrix);
+        printBytes(encoded,"encoded");
 
+        byte[] decoded = ec.decodeByte(encoded, Helper.singleErrorMatrix);
+        printBytes(decoded, "decoded");
+
+        Assertions.assertArrayEquals(bytes, decoded);
+    }
+    static void printBytes(byte[] bytes, String name) {
+        System.out.println("---" + name + "---");
         for (byte b : bytes) {
             System.out.println(Helper.byteToBinaryString(b));
         }
         System.out.println("----------------");
-        for (byte b : encoded) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
-        System.out.println("==============");
-        for (byte b : decoded) {
-            System.out.println(Helper.byteToBinaryString(b));
-        }
+
     }
 }

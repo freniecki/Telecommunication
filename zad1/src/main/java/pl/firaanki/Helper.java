@@ -100,8 +100,9 @@ public class Helper {
         for (int i = 0; i < bytes.length; i++) {
             BitSet byteBits = byteToBitSet(bytes[i]);
             for (int j = 0; j < 8; j++) {
-                bitSet.set(i * bytes.length + j, byteBits.get(j));
+                bitSet.set(i * 8 + j, byteBits.get(j));
             }
+            byteBits.clear();
         }
         return bitSet;
     }

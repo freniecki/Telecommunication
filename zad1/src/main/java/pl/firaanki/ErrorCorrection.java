@@ -1,11 +1,8 @@
 package pl.firaanki;
 
 import java.util.BitSet;
-import java.util.logging.Logger;
-
 
 public class ErrorCorrection {
-    Logger logger = Logger.getLogger(getClass().getName());
 
     /**
      * Gets multiplication product of parity matrix and block word
@@ -71,13 +68,12 @@ public class ErrorCorrection {
 
         for (int i = 0; i < bytes.length; i++) {
             BitSet encodedWord = codeWord(bytes[i], matrix);
-            logger.info(Helper.bitsToString(encodedWord, blockSize));
 
             for (int j = 0; j < blockSize; j++) {
                 encodedBytes.set(i * encodedSize + j, encodedWord.get(j));
             }
         }
-        logger.info(Helper.bitsToString(encodedBytes, encodedSize * 8));
+
         return Helper.toByteArray(encodedBytes, encodedSize);
     }
 
@@ -87,97 +83,65 @@ public class ErrorCorrection {
 
         // error vector is size of matrix row
         BitSet errorVector = multiplyMatrixByVector(block, matrix);
-        boolean correct = errorVector.isEmpty();
 
-        // single error - bit index
-        int errorBitNumber = -1;
-        // double error - bits indexes
-        int errorBitNumber1 = -1;
-        int errorBitNumber2 = -1;
-
-        if (!correct) {
+        if (!errorVector.isEmpty()) {
             // find column equal to error vector
             for (int j = 0; j < columns; j++) {
-                boolean identical = true;
                 for (int i = 0; i < rows; i++) {
                     if (getBoolean(matrix[i][j]) != errorVector.get(i)) {
-                        identical = false;
-                        break;
+                        block.flip(j);
+                        return block;
                     }
-                }
-                if (identical) {
-                    errorBitNumber = j;
-                    break;
                 }
             }
 
             // if not found and rows min. 7 (min. for double error correction)
-            if (errorBitNumber == -1 && rows >= 7) {
+            if (rows >= 7) {
                 for (int col1 = 0; col1 < columns; col1++) {
-                    boolean identical = true;
                     for (int col2 = col1 + 1; col2 < columns; col2++) {
-                        identical = true;
 
                         for (int i = 0; i < rows; i++) {
                             boolean check = getBoolean(matrix[i][col1]) ^ getBoolean(matrix[i][col2]);
                             if (check != errorVector.get(i)) {
-                                identical = false;
-                                break;
+                                block.flip(col1);
+                                block.flip(col2);
+                                return block;
                             }
                         }
-
-                        if (identical) {
-                            errorBitNumber1 = col1;
-                            errorBitNumber2 = col2;
-                            break;
-                        }
-                    }
-
-                    if (identical) {
-                        break;
                     }
                 }
             }
-        }
-
-        if (errorBitNumber != -1){
-            // single error correction
-            block.flip(errorBitNumber);
-        } else if (errorBitNumber1 != -1 && errorBitNumber2 != -1){
-            // double error correction
-            block.flip(errorBitNumber1);
-            block.flip(errorBitNumber2);
         }
         return block;
     }
 
     byte[] decodeByte(byte[] bytes, int[][] matrix) {
+        // size of return byte[]
         int decodedSize;
+        // size of block in bits (12 or 16)
         int blockSize;
 
         if (matrix.length == 4) {
             blockSize = 12;
-            decodedSize = (int) Math.floor((double) (bytes.length * 3 ) / 2);
+            decodedSize = (int) Math.ceil((double) bytes.length / 2);
         } else {
             blockSize = 16;
             decodedSize = bytes.length / 2;
         }
-        BitSet encodedBytes = Helper.byteArrayToBitSet(bytes);
-        BitSet decodedBytes = new BitSet(decodedSize);
 
-        int primaryByteCount = bytes.length * 8 / blockSize;
-        for (int i = 0; i < primaryByteCount; i++) {
-            BitSet block = new BitSet(blockSize);
+        BitSet encodedBytes = Helper.byteArrayToBitSet(bytes);
+        byte[] decoded = new byte[decodedSize];
+        BitSet block = new BitSet(blockSize);
+
+        for (int i = 0; i < decodedSize; i++) {
             for (int j = 0; j < blockSize; j++) {
-                block.set(j, encodedBytes.get(i * primaryByteCount + j));
+                block.set(j, encodedBytes.get(i * blockSize + j));
             }
-            BitSet decodedWord = decodeWord(block, matrix);
-            for (int j = 0; j < 8; j++) {
-                decodedBytes.set(i * 8 + j, decodedWord.get(j));
-            }
+            decoded[i] = Helper.bitSetToByte(decodeWord(block, matrix));
+            block.clear();
         }
 
-        return Helper.toByteArray(decodedBytes, decodedSize);
+        return decoded;
     }
 
 }

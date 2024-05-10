@@ -26,4 +26,9 @@ class HelperTest {
 
         Assertions.assertEquals(b, byt);
     }
+
+    @Test
+    void byteArrayToBitSet() {
+
+    }
 }
