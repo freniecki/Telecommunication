@@ -1,7 +1,6 @@
 package pl.firaanki;
 
 import java.io.*;
-import java.util.StringJoiner;
 import java.util.logging.Logger;
 import java.net.*;
 
@@ -11,39 +10,48 @@ public class Connection {
 
     private Connection(){}
 
-    public static void connectionSender(int port, String message) {
+    public static void connectionSender(int port) {
         final String ADRES_IP = "localhost";
 
-        try (Socket socket = new Socket(ADRES_IP, port)){
-            OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream());
-            osw.write(message);
-            osw.flush();
+        writeToFile(ADRES_IP, port, "encodedText");
+        writeToFile(ADRES_IP, port, "serialized");
+    }
+
+    public static void writeToFile(String address, int port, String fileName) {
+        try (Socket socket = new Socket(address, port)) {
+            OutputStream os = socket.getOutputStream();
+            os.write(FileHandler.getFile(fileName).readBytes());
+            os.flush();
+            os.close();
         } catch (IOException e) {
             logger.info("Nadawca: nie nazwiązano połączenia");
         }
     }
 
-    public static void connectionServer(int port) {
+    public static void connectionReceiver(int port) {
+        readFromFile(port, "encodedText");
+        readFromFile(port, "serialized");
+    }
 
+    private static void readFromFile(int port, String fileName) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("Odbiorca: nasłuchuje...");
-            Socket socket = serverSocket.accept();
+            Socket serializeSocket = serverSocket.accept();
             logger.info("Odbiorca: nawiązano połączenie");
 
-            DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            StringBuilder sb = new StringBuilder();
+            DataInputStream in = new DataInputStream(new BufferedInputStream(serializeSocket.getInputStream()));
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
             int bytesRead;
             byte[] buffer = new byte[1024];
             while ((bytesRead = in.read(buffer)) != -1) {
-                sb.append(new String(buffer, 0, bytesRead));
+                bytes.write(buffer, 0, bytesRead);
             }
             in.close();
 
-            logger.info(sb.toString());
-
+            FileHandler.getFile(fileName).write(bytes.toByteArray());
         } catch (IOException e) {
-            logger.info("odbiorca: nie nawiązano połączenia");
+            logger.info("Odbiorca: nie nawiązano połączenia");
         }
     }
 
