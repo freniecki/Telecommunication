@@ -13,8 +13,8 @@ public class Connection {
     public static void connectionSender(int port) {
         final String ADRES_IP = "localhost";
 
-        writeToFile(ADRES_IP, port, "encodedText");
-        writeToFile(ADRES_IP, port, "serialized");
+        writeToFile(ADRES_IP, port, "encodedTextC");
+        writeToFile(ADRES_IP, port, "serializedC");
     }
 
     public static void writeToFile(String address, int port, String fileName) {
@@ -29,8 +29,8 @@ public class Connection {
     }
 
     public static void connectionReceiver(int port) {
-        readFromFile(port, "encodedText");
-        readFromFile(port, "serialized");
+        readFromFile(port, "encodedTextS");
+        readFromFile(port, "serializedS");
     }
 
     private static void readFromFile(int port, String fileName) {
