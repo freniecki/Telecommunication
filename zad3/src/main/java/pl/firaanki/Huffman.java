@@ -3,13 +3,13 @@ package pl.firaanki;
 import java.io.Serializable;
 import java.util.*;
 
-class Huffman implements Serializable {
+public class Huffman implements Serializable {
 
     private transient Node root;
     private final String text;
     private Map<Character, Integer> charFrequencies;
     private final Map<Character, String> huffmanCodes;
-
+    private String encoded;
 
     public Huffman(String text) {
         this.text = text;
@@ -38,7 +38,8 @@ class Huffman implements Serializable {
         for (char c : text.toCharArray()) {
             sb.append(huffmanCodes.get(c));
         }
-        return sb.toString();
+        encoded = sb.toString();
+        return encoded;
     }
 
     public String encode() {
@@ -56,6 +57,9 @@ class Huffman implements Serializable {
     }
 
     public String decode(String encodedText) {
+        if (encodedText == null) {
+            encodedText = encoded;
+        }
         StringBuilder sb = new StringBuilder();
         Node current = root;
         for (char c : encodedText.toCharArray()) {

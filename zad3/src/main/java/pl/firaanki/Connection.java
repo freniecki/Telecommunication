@@ -8,50 +8,74 @@ public class Connection {
 
     static Logger logger = Logger.getLogger(Connection.class.getName());
 
-    private Connection(){}
-
-    public static void connectionSender(int port) {
-        final String ADRES_IP = "localhost";
-
-        writeToFile(ADRES_IP, port, "encodedTextC");
-        writeToFile(ADRES_IP, port, "serializedC");
+    private Connection() {
     }
 
-    public static void writeToFile(String address, int port, String fileName) {
-        try (Socket socket = new Socket(address, port)) {
-            OutputStream os = socket.getOutputStream();
-            os.write(FileHandler.getFile(fileName).readBytes());
+    public static void sendTextFile(Socket socket, String fileName) {
+        try (OutputStream os = socket.getOutputStream();
+             InputStream fileStream = new FileInputStream(fileName)) {
+
+            logger.info("Nadawca: nawiązano połączenia");
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fileStream.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
             os.flush();
-            os.close();
+            logger.info("Nadawca: plik wysłany");
+
         } catch (IOException e) {
-            logger.info("Nadawca: nie nazwiązano połączenia");
+            logger.severe("Nadawca: jakiś błąd");
         }
     }
 
-    public static void connectionReceiver(int port) {
-        readFromFile(port, "encodedTextS");
-        readFromFile(port, "serializedS");
+    public static void sendObject(Socket socket, String fileName) {
+        Object huffman = FileHandler.getFile(fileName).readHuffman();
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())){
+            oos.writeObject(huffman);
+            oos.flush();
+            logger.info("Nadawca: obiekt wysłany");
+        } catch (IOException e) {
+            logger.severe("Nadawca: błąd z wysłaniem obiektu");
+        }
     }
 
-    private static void readFromFile(int port, String fileName) {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+    public static void receiveTextFile(ServerSocket serverSocket, String fileName) {
+        try (Socket socket = serverSocket.accept();
+             DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+             ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
             logger.info("Odbiorca: nasłuchuje...");
-            Socket serializeSocket = serverSocket.accept();
-            logger.info("Odbiorca: nawiązano połączenie");
 
-            DataInputStream in = new DataInputStream(new BufferedInputStream(serializeSocket.getInputStream()));
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-
-            int bytesRead;
             byte[] buffer = new byte[1024];
+            int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 bytes.write(buffer, 0, bytesRead);
             }
-            in.close();
 
             FileHandler.getFile(fileName).write(bytes.toByteArray());
+            logger.info("Odbiorca: plik odebrany pomyślnie");
+
         } catch (IOException e) {
-            logger.info("Odbiorca: nie nawiązano połączenia");
+            logger.severe("Odbiorca: receive error");
+        }
+    }
+
+    public static void receiveObject(ServerSocket serverSocket, String fileName) {
+        try (Socket socket = serverSocket.accept();
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+            logger.info("Odbiorca: nasłuchuje...");
+
+            Huffman huffman = (Huffman) ois.readObject();
+            logger.info("Odbiorca: obiekt odebrany");
+            FileHandler.getFile(fileName).write(huffman);
+            logger.info("Odbiorca: obiekt zapisany do pliku");
+
+        } catch (IOException e) {
+            logger.severe("jakis błąd");
+        } catch (ClassNotFoundException e) {
+            logger.severe("Odbiorca: nie ma takiej klasy");
         }
     }
 

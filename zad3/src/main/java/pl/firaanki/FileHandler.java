@@ -30,7 +30,7 @@ public class FileHandler {
                 sb.append((char) character);
             }
         } catch (IOException e) {
-            logger.info("IOException");
+            logger.severe("cannot read");
         }
 
         return sb.toString();
@@ -40,7 +40,7 @@ public class FileHandler {
         try (ObjectInputStream oi = new ObjectInputStream(new FileInputStream(fileName))) {
             return (Huffman) oi.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            logger.info("readHuffman: error deserializing");
+            logger.severe("error deserializing");
             return null;
         }
     }
@@ -59,7 +59,7 @@ public class FileHandler {
             writer.write(new String(data, US_ASCII));
             logger.info("Data written to file");
         } catch (IOException e) {
-            logger.info("Error writing data to file");
+            logger.severe("Error writing data to file");
         }
     }
 
@@ -68,7 +68,7 @@ public class FileHandler {
             output.writeObject(huffman);
             logger.info("write Huffman: object written to file");
         } catch (IOException e) {
-            logger.info("write Huffman: file not found / IO exception");
+            logger.severe("write Huffman: file not found / IO exception");
         }
     }
 }
