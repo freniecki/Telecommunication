@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Huffman implements Serializable {
 
-    private transient Node root;
+    private Node root;
     private final String text;
     private Map<Character, Integer> charFrequencies;
     private final Map<Character, String> huffmanCodes;

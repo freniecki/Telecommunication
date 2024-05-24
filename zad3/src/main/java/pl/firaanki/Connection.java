@@ -15,7 +15,7 @@ public class Connection {
         try (OutputStream os = socket.getOutputStream();
              InputStream fileStream = new FileInputStream(fileName)) {
 
-            logger.info("Nadawca: nawiązano połączenia");
+            logger.info("Nadawca: nawiązano połączenie");
 
             byte[] buffer = new byte[1024];
             int bytesRead;
@@ -31,10 +31,17 @@ public class Connection {
     }
 
     public static void sendObject(Socket socket, String fileName) {
-        Object huffman = FileHandler.getFile(fileName).readHuffman();
+        byte[] bytes;
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+            bytes = ois.readAllBytes();
+        } catch (IOException e) {
+            logger.severe("Nadwca: cant read huffman bytes");
+            return;
+        }
 
         try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())){
-            oos.writeObject(huffman);
+            oos.write(bytes);
             oos.flush();
             logger.info("Nadawca: obiekt wysłany");
         } catch (IOException e) {

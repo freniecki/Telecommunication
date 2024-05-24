@@ -93,8 +93,8 @@ public class Main {
         logger.info("Wprowadź adres IPv4 odbiorcy:");
         String ipv4 = scanner.nextLine();
         logger.info("Wprowadź numer gniazda:");
-        int port = scanner.nextInt();
-        logger.info("Wybierz plik z tekstem:");
+        int port = Integer.parseInt(scanner.nextLine());
+        logger.info("Wprowadź nazwę pliku z tekstem:");
         String textFile = scanner.nextLine();
 
         Socket socket;
