@@ -27,34 +27,4 @@ class FileHandlerTest {
         Assertions.assertTrue(true);
     }
 
-    @Test
-    void testAll() {
-        // read from plain file
-        FileHandler fileHandler = FileHandler.getFile("plik.txt");
-        byte[] bytes = fileHandler.read();
-        printBytes(bytes, "message");
-
-        // encode message from file
-        ErrorCorrection ec = new ErrorCorrection();
-        byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
-        //printBytes(encoded, "encoded");
-
-        // write encoded to another file
-        FileHandler encodedFileHandler = FileHandler.getFile("encoded.txt");
-        encodedFileHandler.write(encoded);
-
-        // read from encoded file
-        byte[] encodedRead = encodedFileHandler.read();
-        //printBytes(encodedRead, "readEncoded");
-
-        // decode from encoded file
-        byte[] decoded = ec.decodeBytes(encodedRead, Helper.singleErrorMatrix);
-        printBytes(decoded, "decoded");
-
-        // save to decoded file
-        FileHandler decodedFileHandler = FileHandler.getFile("decoded.txt");
-        decodedFileHandler.write(decoded);
-
-        Assertions.assertArrayEquals(bytes, decoded);
-    }
 }

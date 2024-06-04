@@ -10,18 +10,8 @@ class ErrorCorrectionTest {
     @Test
     void multiplyMatrixByVector() {
         ErrorCorrection ec = new ErrorCorrection();
-        BitSet message = Helper.byteToBitSet((byte) 1);
-        BitSet block = ec.multiplyMatrixByVector(message, Helper.singleErrorMatrix);
-        Assertions.assertEquals("{1, 2}", block.toString());
-
-        // ----------------
-
-        BitSet testBits = Helper.byteToBitSet((byte) 79);
-        BitSet test = ec.multiplyMatrixByVector(testBits, Helper.singleErrorMatrix);
-        Assertions.assertEquals("{0, 2, 3}", test.toString());
-
-        // ----------------
         BitSet testDouble = Helper.byteToBitSet((byte) 79);
+
         BitSet product = ec.multiplyMatrixByVector(testDouble, Helper.doubleErrorMatrix);
         Assertions.assertEquals("{0, 2, 3}", product.toString());
     }
@@ -29,13 +19,8 @@ class ErrorCorrectionTest {
     @Test
     void codeWord() {
         ErrorCorrection ec = new ErrorCorrection();
-
-        BitSet productSingle = ec.codeWord((byte) 79, Helper.singleErrorMatrix);
-        Assertions.assertEquals("{1, 4, 5, 6, 7, 8, 10, 11}", productSingle.toString());
-
-        // ----------------
-        BitSet productDouble = ec.codeWord((byte) 79, Helper.doubleErrorMatrix);
-        Assertions.assertEquals("{1, 4, 5, 6, 7, 8, 10, 11}", productDouble.toString());
+        BitSet product = ec.codeWord((byte) 79, Helper.doubleErrorMatrix);
+        Assertions.assertEquals("{1, 4, 5, 6, 7, 8, 10, 11}", product.toString());
     }
 
     @Test
@@ -43,34 +28,25 @@ class ErrorCorrectionTest {
         ErrorCorrection ec = new ErrorCorrection();
         byte[] array = new byte[1];
         array[0] = (byte) 79;
-        printBytes(array, "array");
 
+        printBytes(array, "array");
         byte[] encoded = {(byte) 79, (byte) 176};
-        byte[] product = ec.codeBytes(array, Helper.singleErrorMatrix);
+
+        byte[] product = ec.codeBytes(array, Helper.doubleErrorMatrix);
         printBytes(product, "product");
 
-        byte[] productDouble = ec.codeBytes(array, Helper.doubleErrorMatrix);
-        printBytes(productDouble, "productDouble");
-
         Assertions.assertArrayEquals(encoded, product);
-        Assertions.assertArrayEquals(encoded, productDouble);
     }
 
     @Test
     void decodeWord() {
         ErrorCorrection ec = new ErrorCorrection();
         byte[] input = {(byte) 51};
-        byte[] encodedBytes = ec.codeBytes(input, Helper.singleErrorMatrix);
-        printBytes(encodedBytes, "encoded");
 
-        BitSet encodedWord = new BitSet(12);
-        for (int i : new int[]{2, 3, 6, 7, 8, 11}) {
-            encodedWord.set(i);
-        }
+        BitSet encodedWord = ec.codeWord((byte) 51, Helper.doubleErrorMatrix);
 
-        BitSet decoded = ec.decodeWord(encodedWord, Helper.singleErrorMatrix);
-        System.out.println(decoded);
-        byte[] output = {Helper.bitSetToByte(decoded)};
+        byte decoded = ec.decodeWord(encodedWord, Helper.doubleErrorMatrix);
+        byte[] output = {decoded};
 
         printBytes(input, "input");
         printBytes(output, "output");
@@ -79,15 +55,35 @@ class ErrorCorrectionTest {
     }
 
     @Test
+    void testFlip() {
+        ErrorCorrection ec = new ErrorCorrection();
+        byte[] input = new byte[]{(byte) 51};
+        printBytes(input, "input");
+
+        BitSet encodedWord = ec.codeWord(input[0], Helper.doubleErrorMatrix);
+        printBytes(encodedWord.toByteArray(), "encoded");
+        encodedWord.flip(4);
+        byte[] flipped = encodedWord.toByteArray();
+        printBytes(flipped, "flipped");
+
+        // ----------------------------------
+
+        byte[] decodedFlip = ec.decodeBytes(flipped, Helper.doubleErrorMatrix);
+        printBytes(decodedFlip, "decodedFlip");
+
+        Assertions.assertArrayEquals(input, decodedFlip);
+    }
+
+    @Test
     void decodeByte() {
         ErrorCorrection ec = new ErrorCorrection();
         byte[] bytes = {(byte) 79};
         printBytes(bytes, "enter");
 
-        byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
+        byte[] encoded = ec.codeBytes(bytes, Helper.doubleErrorMatrix);
         printBytes(encoded, "encoded");
 
-        byte[] decoded = ec.decodeBytes(encoded, Helper.singleErrorMatrix);
+        byte[] decoded = ec.decodeBytes(encoded, Helper.doubleErrorMatrix);
         printBytes(decoded, "decoded");
 
         Assertions.assertArrayEquals(bytes, decoded);
@@ -102,10 +98,10 @@ class ErrorCorrectionTest {
         };
         printBytes(bytes, "enter");
 
-        byte[] encoded = ec.codeBytes(bytes, Helper.singleErrorMatrix);
+        byte[] encoded = ec.codeBytes(bytes, Helper.doubleErrorMatrix);
         printBytes(encoded,"encoded");
 
-        byte[] decoded = ec.decodeBytes(encoded, Helper.singleErrorMatrix);
+        byte[] decoded = ec.decodeBytes(encoded, Helper.doubleErrorMatrix);
         printBytes(decoded, "decoded");
 
         Assertions.assertArrayEquals(bytes, decoded);

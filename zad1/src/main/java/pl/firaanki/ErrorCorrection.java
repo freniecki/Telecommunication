@@ -5,38 +5,40 @@ import java.util.BitSet;
 public class ErrorCorrection {
 
     /**
-     * Gets multiplication product of parity matrix and block word
+     * Multiplies a bit vector by a matrix and returns the result as a BitSet object.
+     * This method is used for calculating parity bits.
      *
-     * @param matrix  Matrix
-     * @param message n-bit word
-     * @return parity bits (4 or 8)
+     * @param vector The bit vector
+     * @param matrix The matrix
+     * @return The multiplication result as a BitSet object
      */
-    BitSet multiplyMatrixByVector(BitSet message, int[][] matrix) {
-        BitSet block = new BitSet(matrix.length);
+    BitSet multiplyMatrixByVector(BitSet vector, int[][] matrix) {
+        int rows = matrix.length;
+        BitSet result = new BitSet(rows);
 
-        for (int i = 0; i < matrix.length; i++) {
-            boolean resultRow = false;
+        for (int i = 0; i < rows; i++) {
+            int sum = 0;
             for (int j = 0; j < matrix[i].length; j++) {
-                resultRow ^= (getBoolean(matrix[i][j]) && message.get(j));
+                if (vector.get(j)) {
+                    sum ^= matrix[i][j];
+                }
             }
-            block.set(i, resultRow);
+            if (sum % 2 != 0) {
+                result.set(i);
+            }
         }
-        return block;
-    }
-
-    boolean getBoolean(int value) {
-        return value == 1;
+        return result;
     }
 
     /**
-     * Take 8-bit word and count parity bits, making it 12- or 16-bit
+     * Encodes an 8-bit word byte using a parity matrix.
+     * Returns a BitSet object containing the encoded data (8 word bits + parity bits).
      *
-     * @param word   byte word
-     * @param matrix int[][]
-     * @return BitSet with parity bits
+     * @param word The 8-bit word byte to encode
+     * @param matrix The parity matrix
+     * @return The encoded data as a BitSet object
      */
     BitSet codeWord(byte word, int[][] matrix) {
-        // word in 8-bit BitSet
         BitSet message = Helper.byteToBitSet(word);
         BitSet parityBits = multiplyMatrixByVector(message, matrix);
         for (int i = 0; i < matrix.length; i++) {
@@ -46,52 +48,58 @@ public class ErrorCorrection {
     }
 
     /**
-     * Encode message using Hamming's method
+     * Encodes an array of bytes using the Hamming method.
+     * Returns the encoded byte array with added parity bits.
      *
-     * @param bytes  byte array
-     * @param matrix int[][]
-     * @return encoded byte array
+     * @param bytes The byte array to encode
+     * @param matrix The parity matrix
+     * @return The encoded byte array
      */
     byte[] codeBytes(byte[] bytes, int[][] matrix) {
-        int encodedSize;
-        int blockSize;
+        int encodedSize = bytes.length * 2;
 
-        if (matrix.length == 4) {
-            blockSize = 12;
-            encodedSize = (int) Math.ceil((double) (bytes.length * 3 ) / 2);
-        } else {
-            blockSize = 16;
-            encodedSize = bytes.length * 2;
-        }
-
-        BitSet encodedBytes = new BitSet(encodedSize);
+        BitSet encoded = new BitSet(encodedSize);
 
         for (int i = 0; i < bytes.length; i++) {
-            BitSet encodedWord = codeWord(bytes[i], matrix);
+            BitSet block = codeWord(bytes[i], matrix); // returns 16bit word+parity
 
-            for (int j = 0; j < blockSize; j++) {
-                encodedBytes.set(i * blockSize + j, encodedWord.get(j));
+            for (int j = 0; j < 16; j++) {
+                encoded.set(i * 16 + j, block.get(j)); // appends to encoded
             }
         }
 
-        return Helper.toByteArray(encodedBytes, encodedSize);
+        return encoded.toByteArray();
     }
 
-    BitSet decodeWord(BitSet block, int[][] matrix) {
-        int columns = 8 + matrix.length;
+    /**
+     * Decodes a 16-bit block of data with parity bits.
+     * Detects and corrects a single error if present.
+     * Detects and corrects a double error if present.
+     * Returns the decoded 8-bit byte.
+     *
+     * @param block The 16-bit block of data with parity bits
+     * @param matrix The parity matrix
+     * @return The decoded 8-bit byte
+     */
+    byte decodeWord(BitSet block, int[][] matrix) {
+        int columns = matrix[0].length;
         int rows = matrix.length;
 
-        // error vector is size of matrix row
         BitSet errorVector = multiplyMatrixByVector(block, matrix);
 
         if (!errorVector.isEmpty()) {
             // find column equal to error vector
             for (int j = 0; j < columns; j++) {
+                boolean match = true;
                 for (int i = 0; i < rows; i++) {
-                    if (getBoolean(matrix[i][j]) != errorVector.get(i)) {
-                        block.flip(j);
-                        return block;
+                    if ((matrix[i][j] == 1) != errorVector.get(i)) {
+                        match = false;
+                        break;
                     }
+                }
+                if (match) {
+                    block.flip(j);
+                    return Helper.bitSetToByte(block);
                 }
             }
 
@@ -100,49 +108,61 @@ public class ErrorCorrection {
                 return checkDoubleError(errorVector, matrix, block, columns, rows);
             }
         }
-        return block;
+        return Helper.bitSetToByte(block);
     }
 
-    private BitSet checkDoubleError(BitSet errorVector, int[][] matrix, BitSet block, int columns, int rows) {
+    /**
+     * Checks for double error presence and corrects it if needed.
+     *
+     * @param errorVector Counted error vector as direction for error position.
+     * @param matrix Matrix to find error position.
+     * @param block Block of message bits and parity bits.
+     * @param columns No. of columns in matrix.
+     * @param rows No. of rows in matrix.
+     * @return Repaired block of bits.
+     */
+    private byte checkDoubleError(BitSet errorVector, int[][] matrix, BitSet block, int columns, int rows) {
         for (int col1 = 0; col1 < columns; col1++) {
             for (int col2 = col1 + 1; col2 < columns; col2++) {
+                boolean match = true;
                 for (int i = 0; i < rows; i++) {
-                    boolean check = getBoolean(matrix[i][col1]) ^ getBoolean(matrix[i][col2]);
+                    boolean check = (matrix[i][col1] + matrix[i][col2]) % 2 == 1;
                     if (check != errorVector.get(i)) {
-                        block.flip(col1);
-                        block.flip(col2);
-                        return block;
+                        match = false;
+                        break;
                     }
+                }
+                if (match) {
+                    block.flip(col1);
+                    block.flip(col2);
+                    return Helper.bitSetToByte(block);
                 }
             }
         }
-        return block;
+        return Helper.bitSetToByte(block);
     }
 
+    /**
+     * Decodes given byte array to smaller byte array with corrected 1 or 2 errors if needed.
+     * @param bytes Byte array containing message with parity bits for every block.
+     * @param matrix Matrix to find error vector.
+     * @return Byte array containing plain message.
+     */
     byte[] decodeBytes(byte[] bytes, int[][] matrix) {
-        // size of return byte[]
-        int decodedSize;
-        // size of block in bits (12 or 16)
-        int blockSize;
+        int decodedSize = bytes.length / 2;
 
-        if (matrix.length == 4) {
-            blockSize = 12;
-            decodedSize = (int) Math.floor((double) bytes.length * 2  / 3);
-        } else {
-            blockSize = 16;
-            decodedSize = bytes.length / 2;
-        }
-
-        BitSet encodedBytes = Helper.byteArrayToBitSet(bytes);
         byte[] decoded = new byte[decodedSize];
-        BitSet block = new BitSet(blockSize);
+
+        BitSet encoded = BitSet.valueOf(bytes);
 
         for (int i = 0; i < decodedSize; i++) {
-            for (int j = 0; j < blockSize; j++) {
-                block.set(j, encodedBytes.get(i * blockSize + j));
+            BitSet block = new BitSet(16);
+            for (int j = 0; j < 16; j++) {
+                if (encoded.get(i * 16 + j)) {
+                    block.set(j);
+                }
             }
-            decoded[i] = Helper.bitSetToByte(decodeWord(block, matrix));
-            block.clear();
+            decoded[i] = decodeWord(block, matrix);
         }
 
         return decoded;

@@ -3,6 +3,7 @@ package pl.firaanki;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 class HelperTest {
@@ -22,5 +23,14 @@ class HelperTest {
         System.out.println(Helper.byteToBinaryString(byt));
 
         Assertions.assertEquals(b, byt);
+    }
+
+    @Test
+    void switchBit() {
+        byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
+        byte[] newBytes = Helper.switchBit(bytes);
+
+        Assertions.assertEquals(bytes.length, newBytes.length);
+        Assertions.assertNotEquals(Arrays.toString(bytes), Arrays.toString(newBytes));
     }
 }
