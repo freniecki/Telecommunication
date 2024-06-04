@@ -48,7 +48,7 @@ public class Huffman implements Serializable {
                 (character, frequency) -> queue.add(new Leaf(character, frequency))
         );
         while (queue.size() > 1) {
-            queue.add(new Node(queue.poll(), queue.poll()));
+            queue.add(new Node(queue.poll(), Objects.requireNonNull(queue.poll())));
         }
         root = queue.poll();
         generateHuffmanCodes(root, "");

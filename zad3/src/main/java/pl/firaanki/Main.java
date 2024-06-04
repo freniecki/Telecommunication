@@ -24,7 +24,7 @@ public class Main {
         }
         Scanner scanner = new Scanner(System.in);
 
-        if (args[0].equals("send")) {
+        if (args[0].equalsIgnoreCase("send")) {
             sender(scanner, encodedFile, huffmanFile);
         } else {
             receiver(scanner, encodedFile, huffmanFile);
@@ -46,38 +46,35 @@ public class Main {
         String decoded = null;
         Huffman huffman;
 
-        ServerSocket socket;
-        try {
-            socket = new ServerSocket(port);
+        try (ServerSocket socket = new ServerSocket(port)){
             logger.info("Odbiorca: założono gniazdo");
+            String option;
+            while (true) {
+                logger.info(menuReceiver);
+                option = scanner.nextLine();
+
+                switch (option) {
+                    case "q":
+                        return;
+                    case "t":
+                        Connection.receiveTextFile(socket, encodedFile);
+                        encoded = FileHandler.getFile(encodedFile).readText();
+                        break;
+                    case "d":
+                        Connection.receiveObject(socket, huffmanFile);
+                        huffman = FileHandler.getFile(huffmanFile).readHuffman();
+                        decoded = huffman.decode(encoded);
+                        FileHandler.getFile("text").write(decoded.getBytes());
+                        break;
+                    case "p":
+                        logger.info(Objects.requireNonNullElse(decoded, "Nie odebrano wiadomości bądź słownika"));
+                        break;
+                    default:
+                }
+            }
+
         } catch (IOException e) {
             logger.severe("Odbiorca: nie założono gniazda");
-            return;
-        }
-
-        String option;
-        while (true) {
-            logger.info(menuReceiver);
-            option = scanner.nextLine();
-
-            switch (option) {
-                case "q":
-                    return;
-                case "t":
-                    Connection.receiveTextFile(socket, encodedFile);
-                    encoded = FileHandler.getFile(encodedFile).readText();
-                    break;
-                case "d":
-                    Connection.receiveObject(socket, huffmanFile);
-                    huffman = FileHandler.getFile(huffmanFile).readHuffman();
-                    decoded = huffman.decode(encoded);
-                    FileHandler.getFile("text").write(decoded.getBytes());
-                    break;
-                case "p":
-                    logger.info(Objects.requireNonNullElse(decoded, "Nie odebrano wiadomości bądź słownika"));
-                    break;
-                default:
-            }
         }
     }
 
@@ -97,43 +94,39 @@ public class Main {
         logger.info("Wprowadź nazwę pliku z tekstem:");
         String textFile = scanner.nextLine();
 
-        Socket socket;
-        try {
-            socket = new Socket(ipv4, port);
+        try (Socket socket = new Socket(ipv4, port)) {
+            String text = FileHandler.getFile(textFile).readText();
+            Huffman huffman = new Huffman(text);
+            String encoded = huffman.encode();
+
+            FileHandler.getFile(encodedFile).write(encoded.getBytes());
+            FileHandler.getFile(huffmanFile).write(huffman);
+
+            String option;
+            while (true) {
+                logger.info(menuSender);
+                option = scanner.nextLine();
+
+                switch (option) {
+                    case "q":
+                        return;
+                    case "p":
+                        logger.info(text);
+                        break;
+                    case "c":
+                        logger.info(encoded);
+                        break;
+                    case "t":
+                        Connection.sendTextFile(socket, encodedFile);
+                        break;
+                    case "d":
+                        Connection.sendObject(socket, huffmanFile);
+                        break;
+                    default:
+                }
+            }
         } catch (IOException e) {
             logger.severe("Nadawca: nie założono gniazda");
-            return;
-        }
-
-        String text = FileHandler.getFile(textFile).readText();
-        Huffman huffman = new Huffman(text);
-        String encoded = huffman.encode();
-
-        FileHandler.getFile(encodedFile).write(encoded.getBytes());
-        FileHandler.getFile(huffmanFile).write(huffman);
-
-        String option;
-        while (true) {
-            logger.info(menuSender);
-            option = scanner.nextLine();
-
-            switch (option) {
-                case "q":
-                    return;
-                case "p":
-                    logger.info(text);
-                    break;
-                case "c":
-                    logger.info(encoded);
-                    break;
-                case "t":
-                    Connection.sendTextFile(socket, encodedFile);
-                    break;
-                case "d":
-                    Connection.sendObject(socket, huffmanFile);
-                    break;
-                default:
-            }
         }
     }
 }
