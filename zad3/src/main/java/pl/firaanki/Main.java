@@ -94,39 +94,43 @@ public class Main {
         logger.info("Wprowadź nazwę pliku z tekstem:");
         String textFile = scanner.nextLine();
 
-        try (Socket socket = new Socket(ipv4, port)) {
-            String text = FileHandler.getFile(textFile).readText();
-            Huffman huffman = new Huffman(text);
-            String encoded = huffman.encode();
+        String text = FileHandler.getFile(textFile).readText();
+        Huffman huffman = new Huffman(text);
+        String encoded = huffman.encode();
 
-            FileHandler.getFile(encodedFile).write(encoded.getBytes());
-            FileHandler.getFile(huffmanFile).write(huffman);
+        FileHandler.getFile(encodedFile).write(encoded.getBytes());
+        FileHandler.getFile(huffmanFile).write(huffman);
 
-            String option;
-            while (true) {
-                logger.info(menuSender);
-                option = scanner.nextLine();
+        String option;
+        while (true) {
+            logger.info(menuSender);
+            option = scanner.nextLine();
 
-                switch (option) {
-                    case "q":
-                        return;
-                    case "p":
-                        logger.info(text);
-                        break;
-                    case "c":
-                        logger.info(encoded);
-                        break;
-                    case "t":
+            switch (option) {
+                case "q":
+                    return;
+                case "p":
+                    logger.info(text);
+                    break;
+                case "c":
+                    logger.info(encoded);
+                    break;
+                case "t":
+                    try (Socket socket = new Socket(ipv4, port)) {
                         Connection.sendTextFile(socket, encodedFile);
-                        break;
-                    case "d":
+                    } catch (IOException e) {
+                        logger.severe("Nadawca: nie założono gniazda");
+                    }
+                    break;
+                case "d":
+                    try (Socket socket = new Socket(ipv4, port)) {
                         Connection.sendObject(socket, huffmanFile);
-                        break;
-                    default:
-                }
+                    } catch (IOException e) {
+                        logger.severe("Nadawca: nie założono gniazda");
+                    }
+                    break;
+                default:
             }
-        } catch (IOException e) {
-            logger.severe("Nadawca: nie założono gniazda");
         }
     }
 }

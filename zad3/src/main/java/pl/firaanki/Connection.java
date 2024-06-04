@@ -26,7 +26,7 @@ public class Connection {
             logger.info("Nadawca: plik wysłany");
 
         } catch (IOException e) {
-            logger.severe("Nadawca: jakiś błąd");
+            logger.severe("Nadawca: błąd przy wysyłaniu pliku");
         }
     }
 
@@ -36,7 +36,7 @@ public class Connection {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
             bytes = ois.readAllBytes();
         } catch (IOException e) {
-            logger.severe("Nadwca: cant read huffman bytes");
+            logger.severe("Nadwca: błąd przy odczytywaniu obiektu");
             return;
         }
 
@@ -45,7 +45,7 @@ public class Connection {
             oos.flush();
             logger.info("Nadawca: obiekt wysłany");
         } catch (IOException e) {
-            logger.severe("Nadawca: błąd z wysłaniem obiektu");
+            logger.severe("Nadawca: błąd przy wysłaniu obiektu");
         }
     }
 
@@ -65,7 +65,7 @@ public class Connection {
             logger.info("Odbiorca: plik odebrany pomyślnie");
 
         } catch (IOException e) {
-            logger.severe("Odbiorca: receive error");
+            logger.severe("Odbiorca: błąd przy odbieraniu pliku");
         }
     }
 
@@ -75,12 +75,13 @@ public class Connection {
             logger.info("Odbiorca: nasłuchuje...");
 
             Huffman huffman = (Huffman) ois.readObject();
-            logger.info("Odbiorca: obiekt odebrany");
+            logger.info("Odbiorca: obiekt odebrany pomyślnie");
+
             FileHandler.getFile(fileName).write(huffman);
             logger.info("Odbiorca: obiekt zapisany do pliku");
 
         } catch (IOException e) {
-            logger.severe("jakis błąd");
+            logger.severe("Odbiorca: błąd przy odbieraniu obiektu");
         } catch (ClassNotFoundException e) {
             logger.severe("Odbiorca: nie ma takiej klasy");
         }
