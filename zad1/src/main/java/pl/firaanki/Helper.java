@@ -1,11 +1,8 @@
 package pl.firaanki;
 
 import java.util.BitSet;
-import java.util.Random;
 
 public class Helper {
-
-    static Random r = new Random();
 
     static int[][] doubleErrorMatrix =
             {
@@ -31,28 +28,20 @@ public class Helper {
     }
 
     public static byte bitSetToByte(BitSet bitSet) {
-        byte b = 0;
+        byte result = 0;
         for (int i = 0; i < 8; i++) {
             if (bitSet.get(i)) {
-                b |= (byte) (1 << (7 - i));
+                result |= (byte) (1 << i);
             }
         }
-        return b;
+        return result;
     }
 
     public static String byteToBinaryString(byte b) {
         StringBuilder binaryString = new StringBuilder();
-        for (int i = 7; i >= 0; i--) {
+        for (int i = 0; i < 8; i++) {
             binaryString.append((b >> i) & 1);
         }
         return binaryString.toString();
-    }
-
-    public static byte[] switchBit(byte[] bytes) {
-        BitSet bits = BitSet.valueOf(bytes);
-        int place = r.nextInt(bytes.length * 8);
-        bits.flip(place);
-
-        return bits.toByteArray();
     }
 }

@@ -1,6 +1,7 @@
 package pl.firaanki;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 public class FileHandler {
@@ -22,12 +23,11 @@ public class FileHandler {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try (BufferedInputStream reader = new BufferedInputStream(new FileInputStream(filePath))) {
-
-            int data;
-            while ((data = reader.read()) != -1) {
-                outputStream.write(data);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = reader.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-
         } catch (FileNotFoundException e) {
             logger.info("FileNotFoundException");
         } catch (IOException e) {
@@ -62,6 +62,19 @@ public class FileHandler {
             logger.info("written to file");
         } catch (IOException e) {
             logger.info("cannot write to file");
+        }
+    }
+
+    public void writeBytesDefaultCharset(byte[] data, Charset charset) {
+        String filePath = new File(fileName).getAbsolutePath();
+        logger.info(filePath);
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(filePath), charset))) {
+            writer.write(new String(data, charset));
+            logger.info("Data written to file");
+        } catch (IOException e) {
+            logger.info("Error writing data to file");
         }
     }
 }

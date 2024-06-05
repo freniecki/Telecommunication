@@ -3,6 +3,9 @@ package pl.firaanki;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import static pl.firaanki.ErrorCorrectionTest.printBytes;
 
 class FileHandlerTest {
@@ -25,6 +28,9 @@ class FileHandlerTest {
         byte[] bytes = fileHandler.read();
         printBytes(bytes, "read");
         Assertions.assertTrue(true);
+
+        Charset charset = Charset.defaultCharset();
+        System.out.println(charset.toString());
     }
 
 }
