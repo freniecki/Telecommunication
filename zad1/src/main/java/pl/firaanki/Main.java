@@ -1,5 +1,7 @@
 package pl.firaanki;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
@@ -10,69 +12,42 @@ public class Main {
     public static void main(String[] args) {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
+
+        Charset charset = StandardCharsets.US_ASCII;
         String info = """ 
                     encode/decode inputFileName outputFileName
-                    1bit fileName
-                    2bit fileName
                     """;
 
-        if (args.length != 2 && args.length != 4) {
+        if (args.length != 3) {
             logger.info(info);
             return;
         }
-        if (args.length == 2) {
-            String fileName = args[1];
-            switch (args[0]) {
-                case "1bit":
-                    switchBit(1, fileName);
-                    break;
-                case "2bit":
-                    switchBit(2, fileName);
-                    break;
-                default:
-                    logger.info(info);
-            }
-        } else {
-            int[][] matrix = Helper.doubleErrorMatrix;
 
-            switch (args[0]) {
-                case "encode":
-                    runEncode(args[1], args[2], matrix);
-                    break;
-                case "decode":
-                    runDecode(args[1], args[2], matrix);
-                    break;
-                default:
-                    logger.info(info);
-            }
+        switch (args[0]) {
+            case "encode":
+                runEncode(args[1], args[2]);
+                break;
+            case "decode":
+                runDecode(args[1], args[2], charset);
+                break;
+            default:
+                logger.info(info);
         }
     }
 
-    private static void runEncode(String inputFileName, String outputFileName, int[][] matrix) {
+    private static void runEncode(String inputFileName, String outputFileName) {
         FileHandler reader = FileHandler.getFile(inputFileName);
         byte[] bytes = reader.read();
 
         FileHandler writer = FileHandler.getFile(outputFileName);
-        writer.write(ec.codeBytes(bytes, matrix));
+        writer.write(ec.codeBytes(bytes));
     }
 
-    private static void runDecode(String inputFileName, String outputFileName, int[][] matrix) {
+    private static void runDecode(String inputFileName, String outputFileName, Charset charset) {
         FileHandler reader = FileHandler.getFile(inputFileName);
         byte[] bytes = reader.read();
 
         FileHandler writer = FileHandler.getFile(outputFileName);
-        writer.write(ec.decodeBytes(bytes, matrix));
-    }
-
-    private static void switchBit(int bits, String fileName) {
-        FileHandler reader = FileHandler.getFile(fileName);
-        byte[] bytes = reader.read();
-        if (bits == 1) {
-            byte[] oneBit = Helper.switchBit(bytes);
-            FileHandler.getFile(fileName).write(oneBit);
-        } else {
-            byte[] twoBits = Helper.switchBit(Helper.switchBit(bytes));
-            FileHandler.getFile(fileName).write(twoBits);
-        }
+        writer.writeBytesDefaultCharset(ec.decodeBytes(bytes), charset);
     }
 }
