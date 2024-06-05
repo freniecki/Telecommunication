@@ -48,6 +48,6 @@ public class Main {
         byte[] bytes = reader.read();
 
         FileHandler writer = FileHandler.getFile(outputFileName);
-        writer.writeBytesDefaultCharset(ec.decodeBytes(bytes), charset);
+        writer.write(ec.decodeBytes(bytes), charset);
     }
 }

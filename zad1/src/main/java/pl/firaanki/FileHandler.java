@@ -65,12 +65,12 @@ public class FileHandler {
         }
     }
 
-    public void writeBytesDefaultCharset(byte[] data, Charset charset) {
+    public void write(byte[] data, Charset charset) {
         String filePath = new File(fileName).getAbsolutePath();
         logger.info(filePath);
 
         try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(filePath), charset))) {
+                new OutputStreamWriter(new FileOutputStream(filePath)))) {
             writer.write(new String(data, charset));
             logger.info("Data written to file");
         } catch (IOException e) {

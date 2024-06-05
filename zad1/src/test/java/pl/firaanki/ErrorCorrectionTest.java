@@ -50,10 +50,13 @@ class ErrorCorrectionTest {
     @Test
     void decodeWord() {
         ErrorCorrection ec = new ErrorCorrection();
-        byte[] input = {(byte) 51};
+        byte[] input = {(byte) 79};
         printBytes(input, "input");
 
         BitSet encodedWord = ec.codeWord(input[0]);
+        encodedWord.flip(9);
+        encodedWord.flip(10);
+
         printBytes(encodedWord.toByteArray(), "encoded");
 
         byte decoded = ec.decodeWord(encodedWord);
@@ -91,8 +94,8 @@ class ErrorCorrectionTest {
         printBytes(encoded, "encoded");
 
         BitSet encodedBits = BitSet.valueOf(encoded);
-        encodedBits.flip(12);
-        encodedBits.flip(13);
+        encodedBits.flip(14);
+        encodedBits.flip(15);
 
         byte[] flipped = encodedBits.toByteArray();
         printBytes(flipped, "flipped");
@@ -110,5 +113,16 @@ class ErrorCorrectionTest {
         }
         System.out.println("-------------");
 
+    }
+
+    @Test
+    void testBitSet() {
+        byte[] bytes = {
+                (byte) 48, (byte) 57, (byte) 56, (byte) 55, (byte) 54,
+                (byte) 53, (byte) 52, (byte) 51, (byte) 50, (byte) 49,
+        };
+        BitSet bitset = BitSet.valueOf(bytes);
+        byte[] newBytes = bitset.toByteArray();
+        Assertions.assertArrayEquals(bytes, newBytes);
     }
 }
