@@ -1,11 +1,9 @@
 package pl.firaanki;
 
 import java.util.BitSet;
-import java.util.logging.Logger;
 
 public class ErrorCorrection {
 
-    Logger logger = Logger.getLogger(getClass().getName());
     /**
      * Multiplies a bit vector by a matrix and returns the result as a BitSet object.
      * This method is used for calculating parity bits.
@@ -39,18 +37,12 @@ public class ErrorCorrection {
      * @return The encoded data as a BitSet object
      */
     BitSet codeWord(byte word) {
-        logger.info(Helper.byteToBinaryString(word));
-
         BitSet message = Helper.byteToBitSet(word);
-        logger.info(message.toString());
-
         BitSet parityBits = multiplyMatrixByVector(message);
-        logger.info(parityBits.toString());
 
         for (int i = 0; i < 8; i++) {
             message.set(i + 8, parityBits.get(i));
         }
-        logger.info(message.toString());
         return message;
     }
 
@@ -87,15 +79,12 @@ public class ErrorCorrection {
      * @return The decoded 8-bit byte
      */
     byte decodeWord(BitSet block) {
-        logger.info(block.toString());
-
         int[][] matrix = Helper.doubleErrorMatrix;
         int columns = matrix[0].length;
         int rows = matrix.length;
         boolean match = true;
 
         BitSet errorVector = multiplyMatrixByVector(block);
-        logger.info(errorVector.toString());
 
         if (!errorVector.isEmpty()) {
             // find column equal to error vector
@@ -118,7 +107,6 @@ public class ErrorCorrection {
             }
         }
 
-        logger.info(block.toString());
         return Helper.bitSetToByte(block);
     }
 
@@ -141,7 +129,6 @@ public class ErrorCorrection {
                 }
             }
         }
-        logger.info(block.toString());
         return Helper.bitSetToByte(block);
     }
 
