@@ -1,9 +1,12 @@
 package pl.firaanki;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
 public class Huffman implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Node root;
     private final String text;

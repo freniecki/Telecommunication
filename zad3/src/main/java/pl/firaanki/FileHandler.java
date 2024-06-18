@@ -39,10 +39,12 @@ public class FileHandler {
     public Huffman readHuffman() {
         try (ObjectInputStream oi = new ObjectInputStream(new FileInputStream(fileName))) {
             return (Huffman) oi.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            logger.severe("error deserializing");
-            return null;
+        } catch (IOException e) {
+            logger.severe("Błąd przy deserializacji pliku");
+        } catch (ClassNotFoundException e) {
+            logger.severe("Klasa nie znaleziona przy deserializacji");
         }
+        return null;
     }
 
     public byte[] readBytes() {

@@ -57,14 +57,14 @@ public class Main {
                     case "q":
                         return;
                     case "t":
-                        Connection.receiveTextFile(socket, encodedFile);
+                        Connection.receive(socket, encodedFile);
                         encoded = FileHandler.getFile(encodedFile).readText();
                         break;
                     case "d":
-                        Connection.receiveObject(socket, huffmanFile);
+                        Connection.receive(socket, huffmanFile);
                         huffman = FileHandler.getFile(huffmanFile).readHuffman();
                         decoded = huffman.decode(encoded);
-                        FileHandler.getFile("text").write(decoded.getBytes());
+                        FileHandler.getFile("huffman").write(decoded.getBytes());
                         break;
                     case "p":
                         logger.info(Objects.requireNonNullElse(decoded, "Nie odebrano wiadomości bądź słownika"));
@@ -117,14 +117,14 @@ public class Main {
                     break;
                 case "t":
                     try (Socket socket = new Socket(ipv4, port)) {
-                        Connection.sendTextFile(socket, encodedFile);
+                        Connection.send(socket, encodedFile);
                     } catch (IOException e) {
                         logger.severe("Nadawca: nie założono gniazda");
                     }
                     break;
                 case "d":
                     try (Socket socket = new Socket(ipv4, port)) {
-                        Connection.sendObject(socket, huffmanFile);
+                        Connection.send(socket, huffmanFile);
                     } catch (IOException e) {
                         logger.severe("Nadawca: nie założono gniazda");
                     }

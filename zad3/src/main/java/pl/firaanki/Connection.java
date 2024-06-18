@@ -11,7 +11,7 @@ public class Connection {
     private Connection() {
     }
 
-    public static void sendTextFile(Socket socket, String fileName) {
+    public static void send(Socket socket, String fileName) {
         try (OutputStream os = socket.getOutputStream();
              InputStream fileStream = new FileInputStream(fileName)) {
 
@@ -30,26 +30,7 @@ public class Connection {
         }
     }
 
-    public static void sendObject(Socket socket, String fileName) {
-        byte[] bytes;
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
-            bytes = ois.readAllBytes();
-        } catch (IOException e) {
-            logger.severe("Nadwca: błąd przy odczytywaniu obiektu");
-            return;
-        }
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())){
-            oos.write(bytes);
-            oos.flush();
-            logger.info("Nadawca: obiekt wysłany");
-        } catch (IOException e) {
-            logger.severe("Nadawca: błąd przy wysłaniu obiektu");
-        }
-    }
-
-    public static void receiveTextFile(ServerSocket serverSocket, String fileName) {
+    public static void receive(ServerSocket serverSocket, String fileName) {
         try (Socket socket = serverSocket.accept();
              DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
              ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
@@ -69,22 +50,19 @@ public class Connection {
         }
     }
 
-    public static void receiveObject(ServerSocket serverSocket, String fileName) {
+    public static void receiveHuffman(ServerSocket serverSocket, String fileName) {
         try (Socket socket = serverSocket.accept();
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
             logger.info("Odbiorca: nasłuchuje...");
 
-            Huffman huffman = (Huffman) ois.readObject();
+            Huffman huffman = (Huffman) in.readObject();
+            FileHandler.getFile(fileName).write(huffman);
             logger.info("Odbiorca: obiekt odebrany pomyślnie");
 
-            FileHandler.getFile(fileName).write(huffman);
-            logger.info("Odbiorca: obiekt zapisany do pliku");
-
         } catch (IOException e) {
-            logger.severe("Odbiorca: błąd przy odbieraniu obiektu");
+            logger.severe("Odbiorca: błąd przy odbieraniu obiektu: " + e.getMessage());
         } catch (ClassNotFoundException e) {
-            logger.severe("Odbiorca: nie ma takiej klasy");
+            logger.severe("Odbiorca: klasa nie znaleziona przy deserializacji: " + e.getMessage());
         }
     }
-
 }
