@@ -25,10 +25,9 @@ class HuffmanTest {
         String expected = "dupadupa";
 
         Huffman huffman = new Huffman(expected);
-        Map<Character, String> dictionary = huffman.getHuffmanCodes();
+        huffman.encode();
 
-        Huffman test = new Huffman(dictionary);
+        Assertions.assertEquals(expected, huffman.decode(encoded));
 
-        Assertions.assertEquals(expected, test.decode(encoded));
     }
 }

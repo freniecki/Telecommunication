@@ -24,4 +24,9 @@ class FileHandlerTest {
 
         Assertions.assertEquals("twoja stara", newHuffman.decode(encoded));
     }
+
+    @Test
+    void serialization() {
+
+    }
 }

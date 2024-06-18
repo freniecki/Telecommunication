@@ -20,11 +20,6 @@ public class Huffman implements Serializable {
         huffmanCodes = new HashMap<>();
     }
 
-    public Huffman(Map<Character, String> dictionary) {
-        this.text = "";
-        huffmanCodes = dictionary;
-    }
-
     private void fillCharFrequencies() {
         charFrequencies = new HashMap<>();
         for (char c : text.toCharArray()) {
