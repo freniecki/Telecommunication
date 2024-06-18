@@ -3,6 +3,8 @@ package pl.firaanki;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HuffmanTest {
@@ -22,8 +24,11 @@ class HuffmanTest {
         String encoded = "1001001110010011";
         String expected = "dupadupa";
 
-        Huffman huffman = new Huffman("");
+        Huffman huffman = new Huffman(expected);
+        Map<Character, String> dictionary = huffman.getHuffmanCodes();
 
-        Assertions.assertEquals(expected, huffman.decode(encoded));
+        Huffman test = new Huffman(dictionary);
+
+        Assertions.assertEquals(expected, test.decode(encoded));
     }
 }
