@@ -27,6 +27,16 @@ class FileHandlerTest {
 
     @Test
     void serialization() {
+        Huffman huffman = new Huffman("twoja stara");
+        String encoded = huffman.encode();
 
+        FileHandler.getFile("huffman").write(huffman);
+
+        Huffman newHuffman = FileHandler.getFile("huffman").readHuffman();
+
+        String decoded = newHuffman.decode(encoded);
+
+        //Assertions.assertSame(huffman, newHuffman);
+        Assertions.assertEquals("twoja stara", decoded);
     }
 }

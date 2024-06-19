@@ -37,6 +37,7 @@ public class Main {
                 [t] receive text
                 [d] receive dictionary
                 [p] print text
+                [D] print dictionary
                 """;
 
         logger.info("Wprowadź numer gniazda:");
@@ -44,7 +45,7 @@ public class Main {
 
         String encoded = null;
         String decoded = null;
-        Huffman huffman;
+        Huffman huffman = null;
 
         try (ServerSocket socket = new ServerSocket(port)){
             logger.info("Odbiorca: założono gniazdo");
@@ -61,14 +62,16 @@ public class Main {
                         encoded = FileHandler.getFile(encodedFile).readText();
                         break;
                     case "d":
-                        Connection.receive(socket, huffmanFile);
-                        huffman = FileHandler.getFile(huffmanFile).readHuffman();
+                        huffman = Connection.receiveHuffman(socket, huffmanFile);
                         decoded = huffman.decode(encoded);
-                        FileHandler.getFile("huffman").write(decoded.getBytes());
+                        FileHandler.getFile("decoded").write(decoded.getBytes());
                         break;
                     case "p":
                         logger.info(Objects.requireNonNullElse(decoded, "Nie odebrano wiadomości bądź słownika"));
                         break;
+                    case "D":
+                        logger.info(Objects.requireNonNullElse(huffman.getDictionary(),
+                                "Nie odebrano słownika"));
                     default:
                 }
             }

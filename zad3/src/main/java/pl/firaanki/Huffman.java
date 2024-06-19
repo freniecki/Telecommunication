@@ -79,4 +79,12 @@ public class Huffman implements Serializable {
         return sb.toString();
     }
 
+    public String getDictionary() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Character, Integer> entry : charFrequencies.entrySet()) {
+            sb.append("char: ").append(entry.getKey()).append(" | ").append(entry.getValue()).append('\n');
+        }
+
+        return sb.toString();
+    }
 }
