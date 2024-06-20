@@ -21,13 +21,17 @@ class HuffmanTest {
 
     @Test
     void decode() {
-        String encoded = "1001001110010011";
-        String expected = "dupadupa";
+        String expected = "twoja stara w hannowerze";
 
         Huffman huffman = new Huffman(expected);
-        huffman.encode();
+        String encoded = huffman.encode();
+        byte[] bytes = Converter.encodeToBytes(encoded);
+        String decoded = Converter.decodeFromBytes(bytes);
 
-        Assertions.assertEquals(expected, huffman.decode(encoded));
+        String product = huffman.decode(decoded);
+        System.out.println(product);
+
+        Assertions.assertEquals(expected, product);
 
     }
 }

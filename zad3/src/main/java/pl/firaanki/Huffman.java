@@ -45,10 +45,6 @@ public class Huffman implements Serializable {
         return encoded;
     }
 
-    public Map<Character, String> getHuffmanCodes() {
-        return huffmanCodes;
-    }
-
     public String encode() {
         Queue<Node> queue = new PriorityQueue<>();
         charFrequencies.forEach(
